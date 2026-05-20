@@ -87,34 +87,30 @@ databricks workspace import /Shared/genie-code-migration-demo/03_SQLServer_Migra
 
 Or just clone this repo and use the Databricks UI: **Workspace → Import → URL** and paste the raw GitHub link.
 
-### Step 2: Install Migration Skills (Optional but Recommended)
-
-Skills enhance Genie Code's conversion accuracy with dialect-specific rules.
-
-```bash
-# Upload skills to the workspace root
-databricks workspace mkdirs "/Workspace/.assistant/skills/oracle-migration" --profile "$PROFILE"
-databricks workspace mkdirs "/Workspace/.assistant/skills/synapse-migration" --profile "$PROFILE"
-databricks workspace mkdirs "/Workspace/.assistant/skills/sqlserver-migration" --profile "$PROFILE"
-
-databricks workspace import "/Workspace/.assistant/skills/oracle-migration/SKILL.md" \
-  --file skills/oracle-migration/SKILL.md --format AUTO --overwrite --profile "$PROFILE"
-
-databricks workspace import "/Workspace/.assistant/skills/synapse-migration/SKILL.md" \
-  --file skills/synapse-migration/SKILL.md --format AUTO --overwrite --profile "$PROFILE"
-
-databricks workspace import "/Workspace/.assistant/skills/sqlserver-migration/SKILL.md" \
-  --file skills/sqlserver-migration/SKILL.md --format AUTO --overwrite --profile "$PROFILE"
-```
-
-Skills auto-load in Agent mode when Genie Code detects migration context. Users can also invoke them explicitly with `@oracle-migration`, `@synapse-migration`, or `@sqlserver-migration`.
-
-### Step 3: Verify
+### Step 2: Verify
 
 - Open any of the migration notebooks
 - Click the Genie Code sparkle icon on the right
 - Select **Agent** mode (toggle at bottom of panel)
+- Type `/migrate` — it works out of the box, no additional setup needed
 - You're ready to demo
+
+**That's it.** `/migrate` is a built-in Genie Code feature. No skills, no plugins, no configuration required.
+
+### Step 3 (Optional): Install Custom Migration Skills
+
+The `skills/` folder contains optional Genie Code Skills that add explicit dialect-specific conversion rules. These are **not required** — `/migrate` works without them — but they can improve accuracy for edge cases and let you encode your organization's specific conventions (catalog names, naming patterns, preferred approaches).
+
+```bash
+# Upload skills to the workspace root (optional)
+for skill in oracle-migration synapse-migration sqlserver-migration; do
+  databricks workspace mkdirs "/Workspace/.assistant/skills/$skill" --profile "$PROFILE"
+  databricks workspace import "/Workspace/.assistant/skills/$skill/SKILL.md" \
+    --file "skills/$skill/SKILL.md" --format AUTO --overwrite --profile "$PROFILE"
+done
+```
+
+Skills auto-load in Agent mode when Genie Code detects migration context. Users can also invoke them explicitly with `@oracle-migration`, `@synapse-migration`, or `@sqlserver-migration`.
 
 ---
 
