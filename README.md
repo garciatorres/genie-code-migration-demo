@@ -87,22 +87,19 @@ databricks workspace import /Shared/genie-code-migration-demo/03_SQLServer_Migra
 
 Or just clone this repo and use the Databricks UI: **Workspace → Import → URL** and paste the raw GitHub link.
 
-### Step 2: Verify
+### Step 2: Install Migration Skills (Optional)
 
-- Open any of the migration notebooks
-- Click the Genie Code sparkle icon on the right
-- Select **Agent** mode (toggle at bottom of panel)
-- Type `/migrate` — it works out of the box, no additional setup needed
-- You're ready to demo
+The `skills/` folder contains Genie Code Skills with explicit dialect-specific conversion rules. These are **not required** — `/migrate` works without them — but they provide meaningful benefits:
 
-**That's it.** `/migrate` is a built-in Genie Code feature. No skills, no plugins, no configuration required.
+- **Explicit conversion rule tables** — deterministic mappings instead of relying on general LLM knowledge
+- **Edge case handling** — e.g., Oracle `DATE` includes time (→ `TIMESTAMP`, not `DATE`), `MONEY` → `DECIMAL(19,4)` with correct precision
+- **Organization-specific conventions** — you can add your catalog names, naming patterns, preferred approaches
+- **Consistency** — same conversion rules every time, regardless of how you prompt
 
-### Step 3 (Optional): Install Custom Migration Skills
-
-The `skills/` folder contains optional Genie Code Skills that add explicit dialect-specific conversion rules. These are **not required** — `/migrate` works without them — but they can improve accuracy for edge cases and let you encode your organization's specific conventions (catalog names, naming patterns, preferred approaches).
+The skills in this repo are inspired by the [Migration-Skills for Coding Agents](https://github.com/databricks-field-eng/migration-skills) initiative (JIRA: PSINNOV-845) from the Databricks GDC Tooling Team, which is building packaged migration skills for agents like Claude Code, Cursor, and Genie Code. That repo currently covers Alteryx; the Oracle, Synapse, and SQL Server skills here follow the same skill format and complement it.
 
 ```bash
-# Upload skills to the workspace root (optional)
+# Upload skills to the workspace
 for skill in oracle-migration synapse-migration sqlserver-migration; do
   databricks workspace mkdirs "/Workspace/.assistant/skills/$skill" --profile "$PROFILE"
   databricks workspace import "/Workspace/.assistant/skills/$skill/SKILL.md" \
@@ -111,6 +108,14 @@ done
 ```
 
 Skills auto-load in Agent mode when Genie Code detects migration context. Users can also invoke them explicitly with `@oracle-migration`, `@synapse-migration`, or `@sqlserver-migration`.
+
+### Step 3: Verify
+
+- Open any of the migration notebooks
+- Click the Genie Code sparkle icon on the right
+- Select **Agent** mode (toggle at bottom of panel)
+- Type `/migrate` — it works out of the box
+- You're ready to demo
 
 ---
 
